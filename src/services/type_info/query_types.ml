@@ -103,6 +103,31 @@ let dump_types ~printer ~expand_aliases ~evaluate_type_destructors cx file_sig t
   in
   Base.List.filter_map result ~f:print_ok |> concretize_loc_pairs |> sort_loc_pairs
 
+let dump_types' ~expand_aliases ~evaluate_type_destructors cx file_sig typed_ast =
+  let options =
+    {
+      Ty_normalizer_env.fall_through_merged = false;
+      expand_internal_types = false;
+      expand_type_aliases = expand_aliases;
+      flag_shadowed_type_params = false;
+      preserve_inferred_literal_types = false;
+      evaluate_type_destructors;
+      optimize_types = true;
+      omit_targ_defaults = false;
+      merge_bot_and_any_kinds = true;
+    }
+  in
+  let file = Context.file cx in
+  let genv = Ty_normalizer_env.mk_genv ~full_cx:cx ~file ~typed_ast ~file_sig in
+  let result =
+    Ty_normalizer.from_schemes ~options ~genv (Typed_ast_utils.typed_ast_to_list typed_ast)
+  in
+  let print_ok = function
+    | (l, Ok t) -> Some (l, t)
+    | _ -> None
+  in
+  Base.List.filter_map result ~f:print_ok |> concretize_loc_pairs |> sort_loc_pairs
+
 let suggest_types cx file_sig typed_ast loc =
   let options =
     {
