@@ -239,7 +239,7 @@ module Response = struct
   type batch_coverage_response =
     ((File_key.t * Coverage_response.file_coverage) list, string) result
 
-  type dump_types_response = ((Loc.t * string) list, string) result
+  type dump_types_response = ((Loc.t * Ty.t) list, string) result
 
   (* name of the symbol, locations where it appears, or None if no symbols were found *)
   type find_refs_success = (string * Loc.t list) option

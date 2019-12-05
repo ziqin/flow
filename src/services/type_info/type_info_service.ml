@@ -100,13 +100,10 @@ let autofix_exports ~options ~env ~profiling ~file_key ~file_content =
     | (None, _errs, _) -> Error ":o")
 
 let dump_types ~options ~env ~profiling ~expand_aliases ~evaluate_type_destructors file content =
-  (* Print type using Flow type syntax *)
-  let printer = Ty_printer.string_of_t in
   Types_js.type_contents ~options ~env ~profiling content file
   >|= map ~f:(fun (cx, _info, file_sig, tast, _parse_errors) ->
           let abs_file_sig = File_sig.abstractify_locs file_sig in
-          Query_types.dump_types
-            ~printer
+          Query_types.dump_types'
             ~expand_aliases
             ~evaluate_type_destructors
             cx

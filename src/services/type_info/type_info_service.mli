@@ -25,7 +25,7 @@ val dump_types :
   evaluate_type_destructors:bool ->
   File_key.t ->
   string ->
-  ((Loc.t * string) list, string) result Lwt.t
+  ((Loc.t * Ty.t) list, string) result Lwt.t
 
 val coverage :
   cx:Context.t ->
