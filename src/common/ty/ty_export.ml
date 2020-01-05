@@ -339,10 +339,10 @@ and details_of (t: Ty.t) = match t with
   | Top
   | Bot _     
   | Any _     -> []
-  | Fun f     -> details_of_function f
-  | Obj o     -> details_of_object o
-  | Arr a     -> details_of_array a
-  | Generic g -> details_of_generic g
+  | Fun f     -> f |> details_of_function
+  | Obj o     -> o |> details_of_object
+  | Arr a     -> a |> details_of_array
+  | Generic g -> g |> details_of_generic
   | Union (t0, t1, ts) -> ["types", (t0 :: t1 :: ts) |> List.map dump |> as_json_arr]
   | Inter (t0, t1, ts) -> ["types", (t0 :: t1 :: ts) |> List.map dump |> as_json_arr]
   | Tup ts    -> ["types", ts |> List.map dump |> as_json_arr]
@@ -351,7 +351,7 @@ and details_of (t: Ty.t) = match t with
 and details_of_function ({ fun_params; fun_return; _ }) =
   let details_of_param ty name =
     [
-      "kind", dump ty;
+      "type", ty |> dump;
       "name", name |> Option.value ~default:"_" |> as_json_str
     ]
     |> as_json_obj
@@ -375,29 +375,29 @@ and details_of_object { obj_exact; obj_props; obj_literal; obj_frozen } =
       (match p with
         | Field (ty, { fld_optional; _ }) ->
           [
-            "kind", "field" |> as_json_str;
-            "type", dump ty;
+            "namedPropKind", "field" |> as_json_str;
+            "type", ty |> dump;
             "optional", fld_optional |> as_json_bool;
           ]
         | Method ty ->
           [
-            "kind", "method" |> as_json_str;
-            "type", ty |> details_of_function |> as_json_obj;
+            "namedPropKind", "method" |> as_json_str;
+            "type", Fun(ty) |> dump;
           ]
         | Get ty ->
           [
-            "kind", "get" |> as_json_str;
-            "type", dump ty;
+            "namedPropKind", "get" |> as_json_str;
+            "type", ty |> dump;
           ]
         | Set ty ->
           [
-            "kind", "set" |> as_json_str;
-            "type", dump ty;
+            "namedPropKind", "set" |> as_json_str;
+            "type", ty |> dump;
           ])
     | _ ->
       [
         "propType", "other" |> as_json_str;
-        "flowtype", json_of_prop prop
+        "flowtype", prop |> json_of_prop;
       ]
   in
   [
@@ -410,14 +410,15 @@ and details_of_array ({ arr_readonly; arr_literal; arr_elt_t }) =
   [
     "readonly", arr_readonly |> as_json_bool;
     "literal", arr_literal |> as_json_bool;
-    "type", dump arr_elt_t;
+    "type", arr_elt_t |> dump;
   ]
 and details_of_generic (s, k, targs_opt) =
+  let { name; _ } = s in
   (match targs_opt with
   | Some(targs) -> ["typeArgs", targs |> List.map dump |> as_json_arr]
   | None -> [])
   @
   [
-    "type", s |> json_of_symbol;
+    "name", name |> as_json_str;
     "genericKind", k |> Ty.debug_string_of_generic_kind |> as_json_str;
   ]
