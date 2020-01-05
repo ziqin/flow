@@ -265,7 +265,7 @@ LINKER_FLAGS=$(BYTECODE_LINKER_FLAGS)
 
 RELEASE_TAGS=$(if $(FLOW_RELEASE),-tag warn_a,)
 
-OCB=ocamlbuild -use-ocamlfind -no-links
+OCB=ocamlbuild -use-ocamlfind -no-links -tag thread
 
 all: bin/flow$(EXE)
 

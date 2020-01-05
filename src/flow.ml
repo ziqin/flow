@@ -27,6 +27,7 @@ end = struct
       CycleCommand.command;
       GraphCommand.command;
       DumpTypesCommand.command;
+      ExportTypesCommand.command;
       FindModuleCommand.command;
       FindRefsCommand.command;
       ForceRecheckCommand.command;
