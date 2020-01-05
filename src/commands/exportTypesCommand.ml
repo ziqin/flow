@@ -47,7 +47,7 @@ let types_to_json ~file_content types ~strip_root =
     Option.map file_content ~f:(Offset_utils.make ~kind:Offset_utils.Utf8)
   in
   let type_with_location (loc, t) = JSON_Object [
-    "type", Ty_export.json_of_t t;
+    "type", Ty_export.dump t;
     "loc", Reason.json_of_loc ~strip_root ~offset_table loc
   ]
   in
